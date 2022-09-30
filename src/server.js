@@ -20,10 +20,6 @@ server.use("/users", userRouter)
 
 // *********************** MIDDLEWARES ******************
 
-
-
-
-
 // *********************** DB CONNECTION ****************
 mongoose.connect(MONGO_URL)
 mongoose.connection.on("connected", () => {
