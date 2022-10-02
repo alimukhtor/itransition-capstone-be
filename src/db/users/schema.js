@@ -6,9 +6,9 @@ const userSchema = new Schema(
     username: { type: String },
     email: { type: String, unique: true},
     password: { type: String },
-    role: { type: String, enum:["User", "Admin"], default:"User"},
-    status: {type: String, default:"Active"},
-    token: { type: String },
+    role: { type: String, enum:["user", "admin"], default:"user"},
+    status: {type: String, default:"active"},
+    collections: [{ type: Schema.Types.ObjectId, ref: 'Collection' }]
   },
   { timestamps: true }
 );
@@ -18,7 +18,6 @@ userSchema.pre("save", async function(next){
     const plainPassword = newUser.password
     const hashPW = await bcrypt.hash(plainPassword, 11)
     newUser.password = hashPW
-    console.log("Pasword:", hashPW);
     next()
 })
 
