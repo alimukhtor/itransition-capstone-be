@@ -4,7 +4,12 @@ import { verifyJWT } from "./tools.js";
 export const JWTAuthMiddleware = async (req, res, next) => {
   try {
     if (!req.headers.authorization) {
-      next(createHttpError(401, "please provide bearer token in authorization headers!"));
+      next(
+        createHttpError(
+          401,
+          "please provide bearer token in authorization headers!"
+        )
+      );
     } else {
       const token = req.headers.authorization.replace("Bearer ", "");
       const payload = await verifyJWT(token);
@@ -14,7 +19,7 @@ export const JWTAuthMiddleware = async (req, res, next) => {
       };
       next();
     }
-  } catch (error) { 
+  } catch (error) {
     next(createHttpError(401, "User is unauthorized!"));
   }
 };
