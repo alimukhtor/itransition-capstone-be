@@ -4,8 +4,55 @@ import { JWTAuthMiddleware } from "../../middleware/authentication.js";
 import { adminOnly } from "../../middleware/authorization.js";
 import CollectionModel from "./schema.js";
 import { uuid } from "uuidv4";
+import { v2 as Cloudinary } from "cloudinary";
+import multer from "multer";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 
 const collectionRouter = express.Router();
+
+Cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUD_KEY,
+  api_secret: process.env.CLOUD_SECRET,
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary: Cloudinary,
+  params: {
+    folder: "Itransition_Capstone",
+    format: async (req, file) => "png", // supports promises as well
+    public_id: (req, file) => "new",
+  },
+});
+
+const parser = multer({ storage: storage });
+
+collectionRouter.post(
+  "/:collectionId",
+  parser.single("image"),
+  async (req, res, next) => {
+    try {
+      if (req.params.collectionId.length !== 24)
+        return next(createHttpError(400, "Invalid ID"));
+      const collection = await CollectionModel.findById(
+        req.params.collectionId
+      );
+      if (collection) {
+        await collection.updateOne({ image: req.file.path });
+        res.send(collection);
+      } else {
+        next(
+          createHttpError(
+            404,
+            `The collection with id ${req.params.collectionId} not found.`
+          )
+        );
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 // all collections for admin
 collectionRouter.get(
@@ -143,11 +190,9 @@ collectionRouter.delete(
         req.params.collectionId
       );
       if (!collection) {
-        res
-          .status(404)
-          .send({
-            message: `collection with ${req.params.collectionId} is not found!`,
-          });
+        res.status(404).send({
+          message: `collection with ${req.params.collectionId} is not found!`,
+        });
       } else {
         await CollectionModel.findByIdAndUpdate(
           req.params.collectionId,
