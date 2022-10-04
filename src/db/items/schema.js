@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 const { Schema, model } = mongoose;
 
-const collectionSchema = new Schema(
+const itemSchema = new Schema(
   {
     name: { type: String },
     description: { type: String },
@@ -19,5 +19,5 @@ const collectionSchema = new Schema(
   { timestamps: true }
 );
 
-collectionSchema.index({ "$**": "text" });
-export default model("Collection", collectionSchema);
+itemSchema.index({ "$**": "text" });
+export default model("Item", itemSchema);

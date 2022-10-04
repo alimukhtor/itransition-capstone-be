@@ -15,12 +15,12 @@ const port = process.env.PORT || 3030;
 // *********************** IMPORT ROUTES ******************
 
 import userRouter from "./db/users/routes.js";
-import collectionRouter from "./db/collections/routes.js";
+import itemRouter from "./db/items/routes.js";
 
 // ************************ ROUTES *********************
 
 server.use("/users", userRouter);
-server.use("/collections", collectionRouter);
+server.use("/items", itemRouter);
 
 // *********************** MIDDLEWARES ******************
 

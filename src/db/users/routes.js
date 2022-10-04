@@ -3,7 +3,7 @@ import UsersModal from "./schema.js";
 import createHttpError from "http-errors";
 import { JWTAuthenticate } from "../../middleware/tools.js";
 import { JWTAuthMiddleware } from "../../middleware/authentication.js";
-import CollectionModel from "../collections/schema.js";
+import ItemModal from "../items/schema.js";
 import { adminOnly } from "../../middleware/authorization.js";
 const userRouter = express.Router();
 
@@ -22,13 +22,13 @@ userRouter.get(
   }
 );
 
-// get user collections
+// get user items
 userRouter.get("/me/stories", JWTAuthMiddleware, async (req, res, next) => {
   try {
-    const collections = await CollectionModel.find({
+    const items = await ItemModal.find({
       users: req.user._id.toString(),
     });
-    res.status(200).send(collections);
+    res.status(200).send(items);
   } catch (error) {
     next(error);
   }
