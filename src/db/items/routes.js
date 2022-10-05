@@ -29,32 +29,23 @@ const storage = new CloudinaryStorage({
 const parser = multer({ storage: storage });
 
 // image upload for specific item
-itemRouter.post(
-  "/:itemId",
-  parser.single("image"),
-  async (req, res, next) => {
-    try {
-      if (req.params.itemId.length !== 24)
-        return next(createHttpError(400, "Invalid ID"));
-      const item = await ItemModal.findById(
-        req.params.itemId
+itemRouter.post("/:itemId", parser.single("image"), async (req, res, next) => {
+  try {
+    if (req.params.itemId.length !== 24)
+      return next(createHttpError(400, "Invalid ID"));
+    const item = await ItemModal.findById(req.params.itemId);
+    if (item) {
+      await item.updateOne({ image: req.file.path });
+      res.send(item);
+    } else {
+      next(
+        createHttpError(404, `The item with id ${req.params.itemId} not found.`)
       );
-      if (item) {
-        await item.updateOne({ image: req.file.path });
-        res.send(item);
-      } else {
-        next(
-          createHttpError(
-            404,
-            `The item with id ${req.params.itemId} not found.`
-          )
-        );
-      }
-    } catch (error) {
-      next(error);
     }
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 // all items for admin
 itemRouter.get(
@@ -84,7 +75,7 @@ itemRouter.get("/search", async (req, res, next) => {
   }
 });
 
-// get item
+// get item for authorized users
 itemRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
   try {
     const items = await ItemModal.find({ user: req.user._id });
@@ -95,32 +86,42 @@ itemRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
   }
 });
 
-// create item
-itemRouter.post("/", async (req, res, next) => {
+// get single item by id
+itemRouter.get("/:itemId", JWTAuthMiddleware, async (req, res, next) => {
   try {
-    const item = new ItemModal(req.body);
-    const { _id } = await item.save();
-    res.status(201).send({ _id });
+    if (req.params.itemId.length !== 24)
+      return next(createHttpError(400, "Invalid ID"));
+    const items = await ItemModal.findById(req.params.itemId);
+    res.status(200).send(items);
   } catch (error) {
     next(error);
   }
 });
 
-//updates item
+// create an item
+itemRouter.post("/", async (req, res, next) => {
+  try {
+    const item = new ItemModal(req.body);
+    const { _id } = await item.save();
+    res.status(204).send({ _id });
+  } catch (error) {
+    next(error);
+  }
+});
+
+//updates an item
 itemRouter.put("/:id", JWTAuthMiddleware, async (req, res, next) => {
   try {
-    const item = await ItemModal.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
+    const item = await ItemModal.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
     res.status(201).send(item);
   } catch (error) {
     next(error);
   }
 });
 
-// deletes item
+// deletes an item
 itemRouter.delete("/:id", JWTAuthMiddleware, async (req, res, next) => {
   try {
     await ItemModal.findByIdAndDelete(req.params.id);
@@ -184,33 +185,28 @@ itemRouter.post(
 );
 
 // delete comment for specific item
-itemRouter.delete(
-  "/:itemId/comments/:commentId",
-  async (req, res, next) => {
-    try {
-      const item = await ItemModal.findById(
-        req.params.itemId
+itemRouter.delete("/:itemId/comments/:commentId", async (req, res, next) => {
+  try {
+    const item = await ItemModal.findById(req.params.itemId);
+    if (!item) {
+      res.status(404).send({
+        message: `item with ${req.params.itemId} is not found!`,
+      });
+    } else {
+      await ItemModal.findByIdAndUpdate(
+        req.params.itemId,
+        {
+          $pull: { comments: { _id: req.params.commentId } },
+        },
+        { new: true }
       );
-      if (!item) {
-        res.status(404).send({
-          message: `item with ${req.params.itemId} is not found!`,
-        });
-      } else {
-        await ItemModal.findByIdAndUpdate(
-          req.params.itemId,
-          {
-            $pull: { comments: { _id: req.params.commentId } },
-          },
-          { new: true }
-        );
-        res.status(204).send();
-      }
-    } catch (error) {
-      console.log(error);
-      res.send(500).send({ message: error.message });
+      res.status(204).send();
     }
+  } catch (error) {
+    console.log(error);
+    res.send(500).send({ message: error.message });
   }
-);
+});
 
 // adds like
 itemRouter.post(

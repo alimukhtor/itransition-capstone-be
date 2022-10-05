@@ -7,8 +7,9 @@ const userSchema = new Schema(
     email: { type: String, unique: true },
     password: { type: String },
     role: { type: String, enum: ["user", "admin"], default: "user" },
-    status: { type: String, default: "acstive" },
-    DataTransferItemList: [{ type: Schema.Types.ObjectId, ref: "Item" }],
+    status: { type: String, default: "active" },
+    item: [{ type: Schema.Types.ObjectId, ref: "Item" }],
+    col: [{ type: Schema.Types.ObjectId, ref: "Collection" }],
   },
   { timestamps: true }
 );

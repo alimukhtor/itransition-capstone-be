@@ -5,7 +5,6 @@ const itemSchema = new Schema(
   {
     name: { type: String },
     description: { type: String },
-    topic: { type: String },
     image: { type:String },
     comments: [
       {
