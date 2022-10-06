@@ -29,7 +29,7 @@
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
-<!-- <img src="https://github.com/alimukhtor/StriveBnb-BackEnd-Api/blob/main/strivebnb.jpg" width="1280" height="800"/> -->
+<!-- <img src="https://github.com/alimukhtor/itransition-capstone-be/blob/main/strivebnb.jpg" width="1280" height="800"/> -->
 
 <!-- PROJECT LOGO -->
 <br />
@@ -113,7 +113,7 @@ npm i
 
 1. Clone the repo
 ```sh
-git clone https://github.com/alimukhtor/Blog_Post.git
+git clone https://github.com/alimukhtor/itransition-capstone-be.git
 ```
 2. Install all required packages
 ```sh
