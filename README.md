@@ -157,7 +157,7 @@ Distributed under the BSD License. See `LICENSE` for more information.
 
 Izzatillo - [@twitter_handle](https://twitter.com/twitter_handle) - email
 
-Project Link: [https://github.com/alimukhtor/itransition-capstone-be](https://github.com/github_username/repo_name)
+Project Link: [https://github.com/alimukhtor/itransition-capstone-be](https://github.com/alimukhtor/itransition-capstone-be)
 
 
 
