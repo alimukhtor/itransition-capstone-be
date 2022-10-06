@@ -5,14 +5,16 @@ const itemSchema = new Schema(
   {
     name: { type: String },
     description: { type: String },
-    image: { type:String },
+    topic: { type: String },
+    image: { type: String },
     comments: [
       {
         user: { type: Schema.Types.ObjectId, ref: "User", required: true },
-        text: String,
+        text: { type: String },
       },
     ],
-    user: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    tags: { type: String },
+    owner: [{ type: Schema.Types.ObjectId, ref: "User" }],
     likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
   },
   { timestamps: true }

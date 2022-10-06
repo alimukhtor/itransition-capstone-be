@@ -2,8 +2,6 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import listEndpoints from "express-list-endpoints";
-import * as dotenv from "dotenv"; // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
-dotenv.config();
 const server = express();
 server.use(cors());
 server.use(express.json());
@@ -16,7 +14,7 @@ const port = process.env.PORT || 3030;
 
 import userRouter from "./db/users/routes.js";
 import itemRouter from "./db/items/routes.js";
-import collectionRouter from "./db/collections/routes.js"
+import collectionRouter from "./db/collections/routes.js";
 
 // ************************ ROUTES *********************
 

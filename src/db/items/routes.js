@@ -3,7 +3,9 @@ import createHttpError from "http-errors";
 import { JWTAuthMiddleware } from "../../middleware/authentication.js";
 import { adminOnly } from "../../middleware/authorization.js";
 import ItemModal from "./schema.js";
-import { uuid } from "uuidv4";
+import CollectionModal from "../collections/schema.js";
+// import { uuid } from "uuidv4";
+import { v4 as uuidv4 } from "uuid";
 import { v2 as Cloudinary } from "cloudinary";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
@@ -29,23 +31,30 @@ const storage = new CloudinaryStorage({
 const parser = multer({ storage: storage });
 
 // image upload for specific item
-itemRouter.post("/:itemId", parser.single("image"), async (req, res, next) => {
-  try {
-    if (req.params.itemId.length !== 24)
-      return next(createHttpError(400, "Invalid ID"));
-    const item = await ItemModal.findById(req.params.itemId);
-    if (item) {
-      await item.updateOne({ image: req.file.path });
-      res.send(item);
-    } else {
-      next(
-        createHttpError(404, `The item with id ${req.params.itemId} not found.`)
-      );
+itemRouter.post(
+  "/:itemId/image",
+  parser.single("image"),
+  async (req, res, next) => {
+    try {
+      if (req.params.itemId.length !== 24)
+        return next(createHttpError(400, "Invalid ID"));
+      const item = await ItemModal.findById(req.params.itemId);
+      if (item) {
+        await item.updateOne({ image: req.file.path });
+        res.send(item);
+      } else {
+        next(
+          createHttpError(
+            404,
+            `The item with id ${req.params.itemId} not found.`
+          )
+        );
+      }
+    } catch (error) {
+      next(error);
     }
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 // all items for admin
 itemRouter.get(
@@ -54,7 +63,7 @@ itemRouter.get(
   adminOnly,
   async (req, res, next) => {
     try {
-      const getAllitems = await ItemModal.find({}).populate("user");
+      const getAllitems = await ItemModal.find({}).populate("owner");
       res.status(200).send(getAllitems);
     } catch (error) {
       next(error);
@@ -78,7 +87,7 @@ itemRouter.get("/search", async (req, res, next) => {
 // get item for authorized users
 itemRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
   try {
-    const items = await ItemModal.find({ user: req.user._id });
+    const items = await ItemModal.find({ owner: req.user._id });
     console.log("items", items);
     res.send(items);
   } catch (error) {
@@ -99,11 +108,26 @@ itemRouter.get("/:itemId", JWTAuthMiddleware, async (req, res, next) => {
 });
 
 // create an item
-itemRouter.post("/", async (req, res, next) => {
+itemRouter.post("/:collectionId", JWTAuthMiddleware, async (req, res, next) => {
   try {
-    const item = new ItemModal(req.body);
-    const { _id } = await item.save();
-    res.status(204).send({ _id });
+    console.log("body", req.body);
+    if (req.params.collectionId.length !== 24)
+      return next(createHttpError(400, "Invalid ID"));
+    const collection = await CollectionModal.findByIdAndUpdate(
+      req.params.collectionId,
+      {
+        $push: { items: { ...req.body, owner: req.user._id, id: uuidv4() } },
+      },
+      { new: true }
+    );
+    if (!collection)
+      return next(
+        createHttpError(
+          400,
+          `The id ${req.params.collectionId} does not match any collections`
+        )
+      );
+    res.send(collection);
   } catch (error) {
     next(error);
   }
@@ -163,11 +187,13 @@ itemRouter.post(
       const item = await ItemModal.findByIdAndUpdate(
         req.params.itemId,
         {
-          $push: { comments: { ...req.body, user: req.user._id, id: uuid() } },
+          $push: {
+            comments: { ...req.body, owner: req.user._id, id: uuidv4() },
+          },
         },
         { new: true }
       ).populate({
-        path: "user",
+        path: "owner",
         select: "username",
       });
       if (!item)

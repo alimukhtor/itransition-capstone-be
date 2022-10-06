@@ -4,6 +4,7 @@ import CollectionModal from "./schema.js";
 import { v2 as Cloudinary } from "cloudinary";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
+import { JWTAuthMiddleware } from "../../middleware/authentication.js";
 const collectionRoute = express.Router();
 
 // Cloudinary config
@@ -27,7 +28,10 @@ const parser = multer({ storage: storage });
 // get all collections
 collectionRoute.get("/", async (req, res, next) => {
   try {
-    const collection = await CollectionModal.find({});
+    const collection = await CollectionModal.find({}).populate({
+      path: "user",
+      select: "username",
+    });
     res.status(200).send(collection);
   } catch (error) {
     next(error);
@@ -35,7 +39,7 @@ collectionRoute.get("/", async (req, res, next) => {
 });
 
 // create collection
-collectionRoute.post("/", async (req, res, next) => {
+collectionRoute.post("/", JWTAuthMiddleware, async (req, res, next) => {
   try {
     const collection = new CollectionModal(req.body);
     const newCollection = await collection.save();
@@ -89,23 +93,21 @@ collectionRoute.put("/:id", async (req, res, next) => {
       req.body,
       { new: true }
     );
-    req.status(201).send(updateCollection);
+    res.status(201).send(updateCollection);
   } catch (error) {
     next(error);
   }
 });
 
 // delete single collection by id
-collectionRoute.put("/:id", async (req, res, next) => {
+collectionRoute.delete("/:id", async (req, res, next) => {
   try {
-    if (req.params.itemId.length !== 24)
+    if (req.params.id.length !== 24)
       return next(createHttpError(400, "Invalid ID"));
     await CollectionModal.findByIdAndDelete(req.params.id);
-    req
-      .status({
-        msg: `The collection with an id of ${req.params.id} is deleted`,
-      })
-      .send();
+    res.send({
+      msg: `The collection with an id of ${req.params.id} is deleted`,
+    });
   } catch (error) {
     next(error);
   }

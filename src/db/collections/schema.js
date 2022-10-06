@@ -7,11 +7,18 @@ const collectionSchema = new Schema(
     description: { type: String },
     topic: { type: String },
     image: { type: String },
+    additionalCustomFields: {
+      fieldNumber: { type: Number },
+      fieldName: { type: String },
+      fieldType: { type: String },
+      fieldChecked: { type: Boolean },
+      fieldDate: { type: Date },
+    },
     user: [{ type: Schema.Types.ObjectId, ref: "User" }],
-    item: [{ type: Schema.Types.ObjectId, ref: "Item" }],
+    items: [{ type: Schema.Types.ObjectId, ref: "Item" }],
   },
   { timestamps: true }
 );
 
-collectionSchema.index({ "$**": "text" });
+// collectionSchema.index({ "$**": "text" });
 export default model("Collection", collectionSchema);
