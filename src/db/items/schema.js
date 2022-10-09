@@ -9,13 +9,14 @@ const itemSchema = new Schema(
     image: { type: String },
     comments: [
       {
-        user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+        owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
         text: { type: String },
       },
     ],
     tags: { type: String },
-    owner: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    owner: { type: Schema.Types.ObjectId, ref: "User" },
     likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    collections: { type: Schema.Types.ObjectId, ref: "Collection" },
   },
   { timestamps: true }
 );

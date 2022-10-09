@@ -28,10 +28,11 @@ const parser = multer({ storage: storage });
 // get all collections
 collectionRoute.get("/", async (req, res, next) => {
   try {
-    const collection = await CollectionModal.find({}).populate({
-      path: "user",
+    const collection = await CollectionModal.find({})
+    .populate({
+      path: "owner",
       select: "username",
-    });
+    }).populate('items')
     res.status(200).send(collection);
   } catch (error) {
     next(error);
@@ -43,7 +44,7 @@ collectionRoute.post("/", JWTAuthMiddleware, async (req, res, next) => {
   try {
     const collection = new CollectionModal(req.body);
     const newCollection = await collection.save();
-    res.status(204).send(newCollection);
+    res.status(201).send(newCollection);
   } catch (error) {
     next(error);
   }
@@ -52,7 +53,7 @@ collectionRoute.post("/", JWTAuthMiddleware, async (req, res, next) => {
 // get single collection by id
 collectionRoute.get("/:id", async (req, res, next) => {
   try {
-    if (req.params.itemId.length !== 24)
+    if (req.params.id.length !== 24)
       return next(createHttpError(400, "Invalid ID"));
     const collection = await CollectionModal.findById(req.params.id);
     res.status(200).send(collection);

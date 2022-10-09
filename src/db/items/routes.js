@@ -60,10 +60,12 @@ itemRouter.post(
 itemRouter.get(
   "/allitems",
   JWTAuthMiddleware,
-  adminOnly,
+  // adminOnly,
   async (req, res, next) => {
     try {
-      const getAllitems = await ItemModal.find({}).populate("owner");
+      const getAllitems = await ItemModal.find({})
+        .populate({ path: "owner", select: "username" })
+        .populate({ path: "collections", select: "name" });
       res.status(200).send(getAllitems);
     } catch (error) {
       next(error);
@@ -85,10 +87,12 @@ itemRouter.get("/search", async (req, res, next) => {
 });
 
 // get item for authorized users
-itemRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
+itemRouter.get("/", async (req, res, next) => {
   try {
-    const items = await ItemModal.find({ owner: req.user._id });
-    console.log("items", items);
+    const items = await ItemModal.find({}).populate({
+      path: "collections",
+      select: ["name", "owner"],
+    });
     res.send(items);
   } catch (error) {
     next(error);
@@ -108,26 +112,22 @@ itemRouter.get("/:itemId", JWTAuthMiddleware, async (req, res, next) => {
 });
 
 // create an item
-itemRouter.post("/:collectionId", JWTAuthMiddleware, async (req, res, next) => {
+itemRouter.post("/", JWTAuthMiddleware, async (req, res, next) => {
   try {
-    console.log("body", req.body);
-    if (req.params.collectionId.length !== 24)
-      return next(createHttpError(400, "Invalid ID"));
-    const collection = await CollectionModal.findByIdAndUpdate(
-      req.params.collectionId,
+    const item = new ItemModal(req.body);
+    await item.save();
+    const newItem = await CollectionModal.findByIdAndUpdate(
+      req.body.collections,
       {
-        $push: { items: { ...req.body, owner: req.user._id, id: uuidv4() } },
+        $push: { items: { ...item, owner: req.user._id } },
       },
       { new: true }
     );
-    if (!collection)
-      return next(
-        createHttpError(
-          400,
-          `The id ${req.params.collectionId} does not match any collections`
-        )
+    if (!newItem)
+      next(
+        createHttpError(404, `The collection with an id of ${req.body.collections} not found.`)
       );
-    res.send(collection);
+    res.send(newItem);
   } catch (error) {
     next(error);
   }
@@ -158,23 +158,27 @@ itemRouter.delete("/:id", JWTAuthMiddleware, async (req, res, next) => {
 });
 
 //get comments for specific item
-itemRouter.get("/:itemId/comments", async (req, res, next) => {
-  try {
-    if (req.params.itemId.length !== 24)
-      return next(createHttpError(400, "Invalid ID"));
-    const items = await ItemModal.findById(req.params.itemId);
-    if (!items)
-      return next(
-        createHttpError(
-          400,
-          `The id ${req.params.itemId} does not match any items`
-        )
-      );
-    res.status(200).send(items);
-  } catch (error) {
-    next(error);
+itemRouter.get(
+  "/:itemId/comments",
+  JWTAuthMiddleware,
+  async (req, res, next) => {
+    try {
+      if (req.params.itemId.length !== 24)
+        return next(createHttpError(400, "Invalid ID"));
+      const items = await ItemModal.findById(req.params.itemId);
+      if (!items)
+        return next(
+          createHttpError(
+            400,
+            `The id ${req.params.itemId} does not match any items`
+          )
+        );
+      res.status(200).send(items);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 // create comment for specific item
 itemRouter.post(

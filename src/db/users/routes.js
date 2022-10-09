@@ -4,7 +4,7 @@ import createHttpError from "http-errors";
 import { JWTAuthenticate } from "../../middleware/tools.js";
 import { JWTAuthMiddleware } from "../../middleware/authentication.js";
 import CollectionModal from "../collections/schema.js";
-import { adminOnly } from "../../middleware/authorization.js";
+import { adminAndUserOnly, adminOnly } from "../../middleware/authorization.js";
 const userRouter = express.Router();
 
 //get all users
@@ -25,10 +25,10 @@ userRouter.get(
 // get user items
 userRouter.get("/me/stories", JWTAuthMiddleware, async (req, res, next) => {
   try {
-    const items = await CollectionModal.find({
-      users: req.user._id.toString(),
+    const collection = await CollectionModal.find({
+      owner: req.user._id,
     });
-    res.status(200).send(items);
+    res.status(200).send(collection);
   } catch (error) {
     next(error);
   }
@@ -56,7 +56,6 @@ userRouter.get("/:userId", adminOnly, async (req, res, next) => {
 // create user
 userRouter.post("/register", async (req, res, next) => {
   try {
-    console.log("REQ USER", req.user);
     const { username, email, password } = req.body;
     if (!(username && email && password)) {
       res.status(200).send({ msg: "All the fields are required!" });
@@ -67,7 +66,6 @@ userRouter.post("/register", async (req, res, next) => {
     }
     const user = new UsersModal(req.body);
     const { _id } = await user.save();
-    console.log("ID", _id);
     res.status(204).send({ _id });
   } catch (error) {
     next(error);
@@ -112,7 +110,7 @@ userRouter.delete("/:userId", adminOnly, async (req, res, next) => {
 });
 
 // update user
-userRouter.put("/:userId", adminOnly, async (req, res, next) => {
+userRouter.put("/:userId", adminAndUserOnly, async (req, res, next) => {
   try {
     if (req.params.userId.length !== 24)
       return next(createHttpError(400, "Invalid ID"));

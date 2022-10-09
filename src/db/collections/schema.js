@@ -14,8 +14,8 @@ const collectionSchema = new Schema(
       fieldChecked: { type: Boolean },
       fieldDate: { type: Date },
     },
-    user: [{ type: Schema.Types.ObjectId, ref: "User" }],
-    items: [{ type: Schema.Types.ObjectId, ref: "Item" }],
+    owner: { type: Schema.Types.ObjectId, ref: "User" },
+    items: [{ type: Schema.Types.ObjectId, require: true, ref: "Item" }],
   },
   { timestamps: true }
 );
