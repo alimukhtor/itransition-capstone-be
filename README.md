@@ -29,12 +29,12 @@
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
-<!-- <img src="https://github.com/alimukhtor/StriveBnb-BackEnd-Api/blob/main/strivebnb.jpg" width="1280" height="800"/> -->
+<!-- <img src="https://github.com/alimukhtor/itransition-capstone-be/blob/main/strivebnb.jpg" width="1280" height="800"/> -->
 
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
-<a href="https://github.com/github_username/repo_name">
+<a href="https://github.com/alimukhtor/itransition-capstone-be">
 </a>
 
 <h3 align="center">Personal Collection</h3>
@@ -82,8 +82,6 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
-
 Here's a blank template to get started:
 **To avoid retyping too much info. Do a search and replace with your text editor for the following:**
 `github_username`, `repo_name`, `twitter_handle`, `email`, `project_title`, `project_description`
@@ -113,7 +111,7 @@ npm i
 
 1. Clone the repo
 ```sh
-git clone https://github.com/alimukhtor/Blog_Post.git
+git clone https://github.com/alimukhtor/itransition-capstone-be.git
 ```
 2. Install all required packages
 ```sh
@@ -159,7 +157,7 @@ Distributed under the BSD License. See `LICENSE` for more information.
 
 Izzatillo - [@twitter_handle](https://twitter.com/twitter_handle) - email
 
-Project Link: [https://github.com/alimukhtor/itransition-capstone-be](https://github.com/github_username/repo_name)
+Project Link: [https://github.com/alimukhtor/itransition-capstone-be](https://github.com/alimukhtor/itransition-capstone-be)
 
 
 
