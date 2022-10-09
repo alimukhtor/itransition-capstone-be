@@ -14,7 +14,7 @@ userRouter.get(
   adminOnly,
   async (req, res, next) => {
     try {
-      const users = await UsersModal.find({});
+      const users = await UsersModal.find({}).populate("coll");
       res.status(200).send(users);
     } catch (error) {
       next(error);
@@ -91,7 +91,7 @@ userRouter.post("/login", async (req, res, next) => {
 });
 
 // delete user
-userRouter.delete("/:userId", adminOnly, async (req, res, next) => {
+userRouter.delete("/:userId", JWTAuthMiddleware, adminOnly, async (req, res, next) => {
   try {
     if (req.params.userId.length !== 24)
       return next(createHttpError(400, "Invalid ID"));
@@ -110,7 +110,7 @@ userRouter.delete("/:userId", adminOnly, async (req, res, next) => {
 });
 
 // update user
-userRouter.put("/:userId", adminAndUserOnly, async (req, res, next) => {
+userRouter.put("/:userId", JWTAuthMiddleware, adminAndUserOnly, async (req, res, next) => {
   try {
     if (req.params.userId.length !== 24)
       return next(createHttpError(400, "Invalid ID"));
