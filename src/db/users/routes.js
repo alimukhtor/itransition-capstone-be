@@ -14,7 +14,20 @@ userRouter.get(
   adminOnly,
   async (req, res, next) => {
     try {
-      const users = await UsersModal.find({}).populate("coll");
+      const users = await UsersModal.find({}).populate({ 
+        path: 'collections',
+        populate: [{
+          path: 'items',
+          model: 'Item'
+        } ]
+     });
+      if (!users)
+        return next(
+          createHttpError(
+            404,
+            "Bad request. Users not found"
+          )
+        );
       res.status(200).send(users);
     } catch (error) {
       next(error);
@@ -83,7 +96,6 @@ userRouter.post("/login", async (req, res, next) => {
       return next(
         createHttpError(401, "Credentials are not ok. User does not exist!")
       );
-      console.log("USER",user);
     const accessToken = await JWTAuthenticate(user);
     res.status(200).send({ accessToken, user });
   } catch (error) {
@@ -92,44 +104,54 @@ userRouter.post("/login", async (req, res, next) => {
 });
 
 // delete user
-userRouter.delete("/:userId", JWTAuthMiddleware, adminOnly, async (req, res, next) => {
-  try {
-    if (req.params.userId.length !== 24)
-      return next(createHttpError(400, "Invalid ID"));
-    const result = await UsersModal.findByIdAndDelete(req.params.userId);
-    if (!result)
-      return next(
-        createHttpError(
-          400,
-          `The id ${req.params.userId} does not match any users`
-        )
-      );
-    res.status(204).send();
-  } catch (error) {
-    next(error);
+userRouter.delete(
+  "/:userId",
+  JWTAuthMiddleware,
+  adminOnly,
+  async (req, res, next) => {
+    try {
+      if (req.params.userId.length !== 24)
+        return next(createHttpError(400, "Invalid ID"));
+      const result = await UsersModal.findByIdAndDelete(req.params.userId);
+      if (!result)
+        return next(
+          createHttpError(
+            400,
+            `The id ${req.params.userId} does not match any users`
+          )
+        );
+      res.status(204).send();
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 // update user
-userRouter.put("/:userId", JWTAuthMiddleware, adminAndUserOnly, async (req, res, next) => {
-  try {
-    if (req.params.userId.length !== 24)
-      return next(createHttpError(400, "Invalid ID"));
-    const updatedUser = await UsersModal.findByIdAndUpdate(
-      req.params.userId,
-      req.body,
-      { new: true }
-    );
-    if (!updatedUser)
-      return next(
-        createHttpError(
-          400,
-          `The id ${req.params.userId} does not match any users`
-        )
+userRouter.put(
+  "/:userId",
+  JWTAuthMiddleware,
+  adminAndUserOnly,
+  async (req, res, next) => {
+    try {
+      if (req.params.userId.length !== 24)
+        return next(createHttpError(400, "Invalid ID"));
+      const updatedUser = await UsersModal.findByIdAndUpdate(
+        req.params.userId,
+        req.body,
+        { new: true }
       );
-    res.send(updatedUser);
-  } catch (error) {
-    next(error);
+      if (!updatedUser)
+        return next(
+          createHttpError(
+            400,
+            `The id ${req.params.userId} does not match any users`
+          )
+        );
+      res.send(updatedUser);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 export default userRouter;

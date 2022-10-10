@@ -1,6 +1,7 @@
 import express from "express";
 import createHttpError from "http-errors";
 import CollectionModal from "./schema.js";
+import UsersModal from '../users/schema.js'
 import { v2 as Cloudinary } from "cloudinary";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
@@ -52,7 +53,14 @@ collectionRoute.post(
   async (req, res, next) => {
     try {
       const collection = new CollectionModal(req.body);
-      const newCollection = await collection.save();
+      await collection.save();
+      const newCollection = await UsersModal.findByIdAndUpdate(
+        req.body.owner,
+        {
+          $push: { collections: { ...collection, owner: req.user._id } },
+        },
+        { new: true }
+      );
       res.status(201).send(newCollection);
     } catch (error) {
       next(error);
