@@ -83,8 +83,9 @@ userRouter.post("/login", async (req, res, next) => {
       return next(
         createHttpError(401, "Credentials are not ok. User does not exist!")
       );
+      console.log("USER",user);
     const accessToken = await JWTAuthenticate(user);
-    res.status(200).send({ accessToken });
+    res.status(200).send({ accessToken, user });
   } catch (error) {
     next(error);
   }
