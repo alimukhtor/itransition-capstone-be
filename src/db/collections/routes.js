@@ -77,7 +77,7 @@ collectionRoute.get(
     try {
       if (req.params.id.length !== 24)
         return next(createHttpError(400, "Invalid ID"));
-      const collection = await CollectionModal.findById(req.params.id);
+      const collection = await CollectionModal.findById(req.params.id).populate("items");
       res.status(200).send(collection);
     } catch (error) {
       next(error);
