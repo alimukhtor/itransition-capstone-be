@@ -109,8 +109,8 @@ itemRouter.get(
       if (req.params.itemId.length !== 24)
         return next(createHttpError(400, "Invalid ID"));
       const items = await ItemModal.findById(req.params.itemId).populate({
-        path: "collections",
-        select: ["name", "owner"],
+        path: "owner",
+        select: "username",
       });
       res.status(200).send(items);
     } catch (error) {
