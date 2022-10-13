@@ -108,10 +108,9 @@ itemRouter.get(
     try {
       if (req.params.itemId.length !== 24)
         return next(createHttpError(400, "Invalid ID"));
-      const items = await ItemModal.findById(req.params.itemId).populate({
-        path: "owner",
-        select: "username",
-      });
+      const items = await ItemModal.findById(req.params.itemId)
+        .populate("owner")
+        .populate("collections");
       res.status(200).send(items);
     } catch (error) {
       next(error);
@@ -187,7 +186,14 @@ itemRouter.get(
     try {
       if (req.params.itemId.length !== 24)
         return next(createHttpError(400, "Invalid ID"));
-      const items = await ItemModal.findById(req.params.itemId);
+      const items = await ItemModal.findById(req.params.itemId).populate({ 
+        path: 'comments',
+        populate: {
+          path: 'owner',
+          select:"username",
+          model: 'User'
+        } 
+     });
       if (!items)
         return next(
           createHttpError(
@@ -195,7 +201,7 @@ itemRouter.get(
             `The id ${req.params.itemId} does not match any items`
           )
         );
-      res.status(200).send(items);
+      res.status(200).send(items.comments);
     } catch (error) {
       next(error);
     }
@@ -211,11 +217,11 @@ itemRouter.post(
     try {
       if (req.params.itemId.length !== 24)
         return next(createHttpError(400, "Invalid ID"));
-      const item = await ItemModal.findByIdAndUpdate(
+      const comment = await ItemModal.findByIdAndUpdate(
         req.params.itemId,
         {
           $push: {
-            comments: { ...req.body, owner: req.user._id, id: uuidv4() },
+            comments: { ...req.body, owner: req.user._id },
           },
         },
         { new: true }
@@ -223,14 +229,14 @@ itemRouter.post(
         path: "owner",
         select: "username",
       });
-      if (!item)
+      if (!comment)
         return next(
           createHttpError(
             400,
             `The id ${req.params.itemId} does not match any items`
           )
         );
-      res.send(item);
+      res.send(comment);
     } catch (error) {
       next(error);
     }
