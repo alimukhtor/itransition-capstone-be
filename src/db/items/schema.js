@@ -9,7 +9,7 @@ const itemSchema = new Schema(
     image: { type: String },
     comments: [
       {
-        owner: { type: Schema.Types.ObjectId, ref: "User" },
+        owner: [{ type: Schema.Types.ObjectId, ref: "User" }],
         text: { type: String },
       },
     ],
