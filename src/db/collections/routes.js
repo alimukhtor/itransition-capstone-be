@@ -136,7 +136,7 @@ collectionRoute.put(
 
 // delete single collection  by users and admins
 collectionRoute.delete(
-  "/:id",
+  "/:id/deleteCollection",
   JWTAuthMiddleware,
   adminAndUserOnly,
   async (req, res, next) => {
