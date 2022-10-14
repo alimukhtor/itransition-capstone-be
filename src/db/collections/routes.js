@@ -144,9 +144,7 @@ collectionRoute.delete(
       if (req.params.id.length !== 24)
         return next(createHttpError(400, "Invalid ID"));
       await CollectionModal.findByIdAndDelete(req.params.id);
-      res.send({
-        msg: `The collection with an id of ${req.params.id} is deleted`,
-      });
+      res.send();
     } catch (error) {
       next(error);
     }
