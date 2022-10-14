@@ -87,17 +87,22 @@ itemRouter.get("/search", async (req, res, next) => {
 });
 
 // get item for authorized users
-itemRouter.get("/", JWTAuthMiddleware, async (req, res, next) => {
-  try {
-    const items = await ItemModal.find({ owner: req.user._id }).populate({
-      path: "collections",
-      select: ["name", "owner"],
-    });
-    res.send(items);
-  } catch (error) {
-    next(error);
+itemRouter.get(
+  "/",
+  JWTAuthMiddleware,
+  adminAndUserOnly,
+  async (req, res, next) => {
+    try {
+      const items = await ItemModal.find({ owner: req.user._id }).populate({
+        path: "collections",
+        select: ["name", "owner"],
+      });
+      res.send(items);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 // get single item by users and admins
 itemRouter.get(
@@ -186,14 +191,14 @@ itemRouter.get(
     try {
       if (req.params.itemId.length !== 24)
         return next(createHttpError(400, "Invalid ID"));
-      const items = await ItemModal.findById(req.params.itemId).populate({ 
-        path: 'comments',
+      const items = await ItemModal.findById(req.params.itemId).populate({
+        path: "comments",
         populate: {
-          path: 'owner',
-          select:"username",
-          model: 'User'
-        } 
-     });
+          path: "owner",
+          select: "username",
+          model: "User",
+        },
+      });
       if (!items)
         return next(
           createHttpError(

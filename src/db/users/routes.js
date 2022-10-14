@@ -35,6 +35,16 @@ userRouter.get(
   }
 );
 
+// get user themself
+userRouter.get("/me", JWTAuthMiddleware, async (req, res, next) => {
+  try {
+    const user = await UsersModal.findById(req.user._id);
+    res.status(200).send(user);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // get user items
 userRouter.get("/me/stories", JWTAuthMiddleware, async (req, res, next) => {
   try {
