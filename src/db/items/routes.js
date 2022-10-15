@@ -252,7 +252,7 @@ itemRouter.post(
 itemRouter.delete(
   "/:itemId/comments/:commentId",
   JWTAuthMiddleware,
-  adminAndUserOnly,
+  adminOnly,
   async (req, res, next) => {
     try {
       const item = await ItemModal.findById(req.params.itemId);
