@@ -25,6 +25,18 @@ const storage = new CloudinaryStorage({
 });
 const parser = multer({ storage: storage });
 
+collectionRoute.get("/search", async (req, res, next) => {
+  try {
+    const { title } = req.query;
+    const searchitem = await CollectionModal.find({
+      $text: { $search: title },
+    });
+    res.status(200).send(searchitem);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // get all collections by only admins
 collectionRoute.get(
   "/allCollections",
@@ -54,14 +66,15 @@ collectionRoute.post(
     try {
       const collection = new CollectionModal(req.body);
       await collection.save();
-      const newCollection = await UsersModal.findByIdAndUpdate(
+      console.log("BODY",collection);
+      await UsersModal.findByIdAndUpdate(
         req.body.owner,
         {
           $push: { collections: { ...collection, owner: req.user._id } },
         },
         { new: true }
       );
-      res.status(201).send(newCollection);
+      res.status(201).send(collection);
     } catch (error) {
       next(error);
     }
