@@ -4,7 +4,6 @@ import { JWTAuthMiddleware } from "../../middleware/authentication.js";
 import { adminAndUserOnly, adminOnly } from "../../middleware/authorization.js";
 import ItemModal from "./schema.js";
 import CollectionModal from "../collections/schema.js";
-// import { uuid } from "uuidv4";
 import { v4 as uuidv4 } from "uuid";
 import { v2 as Cloudinary } from "cloudinary";
 import multer from "multer";
@@ -36,6 +35,7 @@ itemRouter.post(
   parser.single("image"),
   async (req, res, next) => {
     try {
+      console.log("ITEM id",req.params.itemId);
       if (req.params.itemId.length !== 24)
         return next(createHttpError(400, "Invalid ID"));
       const item = await ItemModal.findById(req.params.itemId);
@@ -142,7 +142,7 @@ itemRouter.post("/", JWTAuthMiddleware, async (req, res, next) => {
           `The collection with an id of ${req.body.collections} not found.`
         )
       );
-    res.send(newItem);
+    res.send(item);
   } catch (error) {
     next(error);
   }
