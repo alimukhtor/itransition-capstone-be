@@ -66,7 +66,6 @@ collectionRoute.post(
     try {
       const collection = new CollectionModal(req.body);
       await collection.save();
-      console.log("BODY",collection);
       await UsersModal.findByIdAndUpdate(
         req.body.owner,
         {
