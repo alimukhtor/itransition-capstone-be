@@ -35,7 +35,7 @@ itemRouter.post(
   parser.single("image"),
   async (req, res, next) => {
     try {
-      console.log("ITEM id",req.params.itemId);
+      console.log("ITEM id", req.params.itemId);
       if (req.params.itemId.length !== 24)
         return next(createHttpError(400, "Invalid ID"));
       const item = await ItemModal.findById(req.params.itemId);
@@ -105,23 +105,18 @@ itemRouter.get(
 );
 
 // get single item by users and admins
-itemRouter.get(
-  "/:itemId",
-  JWTAuthMiddleware,
-  adminAndUserOnly,
-  async (req, res, next) => {
-    try {
-      if (req.params.itemId.length !== 24)
-        return next(createHttpError(400, "Invalid ID"));
-      const items = await ItemModal.findById(req.params.itemId)
-        .populate("owner")
-        .populate("collections");
-      res.status(200).send(items);
-    } catch (error) {
-      next(error);
-    }
+itemRouter.get("/:itemId", async (req, res, next) => {
+  try {
+    if (req.params.itemId.length !== 24)
+      return next(createHttpError(400, "Invalid ID"));
+    const items = await ItemModal.findById(req.params.itemId)
+      .populate("owner")
+      .populate("collections");
+    res.status(200).send(items);
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 // create an item
 itemRouter.post("/", JWTAuthMiddleware, async (req, res, next) => {
@@ -183,35 +178,30 @@ itemRouter.delete(
 );
 
 //get comments for specific item
-itemRouter.get(
-  "/:itemId/comments",
-  JWTAuthMiddleware,
-  adminAndUserOnly,
-  async (req, res, next) => {
-    try {
-      if (req.params.itemId.length !== 24)
-        return next(createHttpError(400, "Invalid ID"));
-      const items = await ItemModal.findById(req.params.itemId).populate({
-        path: "comments",
-        populate: {
-          path: "owner",
-          select: "username",
-          model: "User",
-        },
-      });
-      if (!items)
-        return next(
-          createHttpError(
-            400,
-            `The id ${req.params.itemId} does not match any items`
-          )
-        );
-      res.status(200).send(items.comments);
-    } catch (error) {
-      next(error);
-    }
+itemRouter.get("/:itemId/comments", async (req, res, next) => {
+  try {
+    if (req.params.itemId.length !== 24)
+      return next(createHttpError(400, "Invalid ID"));
+    const items = await ItemModal.findById(req.params.itemId).populate({
+      path: "comments",
+      populate: {
+        path: "owner",
+        select: "username",
+        model: "User",
+      },
+    });
+    if (!items)
+      return next(
+        createHttpError(
+          400,
+          `The id ${req.params.itemId} does not match any items`
+        )
+      );
+    res.status(200).send(items.comments);
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 // create comment for specific item
 itemRouter.post(
@@ -234,13 +224,9 @@ itemRouter.post(
         path: "owner",
         select: "username",
       });
-      if (!comment)
-        return next(
-          createHttpError(
-            400,
-            `The id ${req.params.itemId} does not match any items`
-          )
-        );
+      if (!comment) {
+        next(createHttpError(404, `Id with ${req.params.itemId} not found!`));
+      }
       res.send(comment);
     } catch (error) {
       next(error);
@@ -252,7 +238,7 @@ itemRouter.post(
 itemRouter.delete(
   "/:itemId/comments/:commentId",
   JWTAuthMiddleware,
-  adminOnly,
+  adminAndUserOnly,
   async (req, res, next) => {
     try {
       const item = await ItemModal.findById(req.params.itemId);
@@ -271,8 +257,7 @@ itemRouter.delete(
         res.status(204).send();
       }
     } catch (error) {
-      console.log(error);
-      res.send(500).send({ message: error.message });
+      next(error);
     }
   }
 );

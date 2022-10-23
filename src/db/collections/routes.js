@@ -1,7 +1,7 @@
 import express from "express";
 import createHttpError from "http-errors";
 import CollectionModal from "./schema.js";
-import UsersModal from '../users/schema.js'
+import UsersModal from "../users/schema.js";
 import { v2 as Cloudinary } from "cloudinary";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
@@ -38,24 +38,19 @@ collectionRoute.get("/search", async (req, res, next) => {
 });
 
 // get all collections by only admins
-collectionRoute.get(
-  "/allCollections",
-  JWTAuthMiddleware,
-  adminOnly,
-  async (req, res, next) => {
-    try {
-      const collection = await CollectionModal.find({})
-        .populate({
-          path: "owner",
-          select: "username",
-        })
-        .populate("items");
-      res.status(200).send(collection);
-    } catch (error) {
-      next(error);
-    }
+collectionRoute.get("/allCollections", async (req, res, next) => {
+  try {
+    const collection = await CollectionModal.find({})
+      .populate({
+        path: "owner",
+        select: "username",
+      })
+      .populate("items");
+    res.status(200).send(collection);
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 // create collection only by users and admins
 collectionRoute.post(
@@ -83,13 +78,13 @@ collectionRoute.post(
 // get single collection by users and admins
 collectionRoute.get(
   "/:id",
-  JWTAuthMiddleware,
-  adminAndUserOnly,
   async (req, res, next) => {
     try {
       if (req.params.id.length !== 24)
         return next(createHttpError(400, "Invalid ID"));
-      const collection = await CollectionModal.findById(req.params.id).populate("items");
+      const collection = await CollectionModal.findById(req.params.id).populate(
+        "items"
+      );
       res.status(200).send(collection);
     } catch (error) {
       next(error);
@@ -146,17 +141,41 @@ collectionRoute.put(
   }
 );
 
-// delete single collection  by users and admins
+// delete single collection by admins only
 collectionRoute.delete(
   "/:id/deleteCollection",
   JWTAuthMiddleware,
-  adminAndUserOnly,
+  adminOnly,
+  async (req, res, next) => {
+    try {
+      const { userId } = req.body;
+      if (req.params.id.length !== 24)
+        return next(createHttpError(400, "Invalid ID"));
+      const findUserByID = await UsersModal.findById(userId);
+      if (findUserByID.role === "admin") {
+        await CollectionModal.findByIdAndDelete(req.params.id);
+        res.send();
+      } else {
+        res
+          .status(401)
+          .send({ msg: "You are not allowed to delete collection" });
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// delete single collection  by users
+collectionRoute.delete(
+  "/:id",
+  JWTAuthMiddleware,
   async (req, res, next) => {
     try {
       if (req.params.id.length !== 24)
         return next(createHttpError(400, "Invalid ID"));
-      await CollectionModal.findByIdAndDelete(req.params.id);
-      res.send();
+        await CollectionModal.findByIdAndDelete(req.params.id);
+        res.send();
     } catch (error) {
       next(error);
     }
