@@ -111,7 +111,7 @@ itemRouter.get("/:itemId", async (req, res, next) => {
       return next(createHttpError(400, "Invalid ID"));
     const items = await ItemModal.findById(req.params.itemId)
       .populate("owner")
-      .populate("collections");
+      .populate({path:"collections", select:"name"});
     res.status(200).send(items);
   } catch (error) {
     next(error);

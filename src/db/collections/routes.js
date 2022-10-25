@@ -127,7 +127,7 @@ collectionRoute.put(
   adminAndUserOnly,
   async (req, res, next) => {
     try {
-      if (req.params.itemId.length !== 24)
+      if (req.params.id.length !== 24)
         return next(createHttpError(400, "Invalid ID"));
       const updateCollection = await CollectionModal.findByIdAndUpdate(
         req.params.id,
