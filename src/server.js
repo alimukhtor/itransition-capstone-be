@@ -5,14 +5,8 @@ import passport from 'passport'
 import listEndpoints from "express-list-endpoints";
 import {googleStrategy} from './middleware/oauth.js'
 
-const corsOptions ={
-  origin:'*', 
-  credentials:true,            //access-control-allow-credentials:true
-  optionSuccessStatus:200,
-}
 const server = express();
-server.use(cors(corsOptions));
-server.use(express.json());
+
 // *********************** ENV IMPORTS ******************
 
 const { MONGO_URL } = process.env;
@@ -24,16 +18,18 @@ import userRouter from "./db/users/routes.js";
 import itemRouter from "./db/items/routes.js";
 import collectionRouter from "./db/collections/routes.js";
 
+// *********************** MIDDLEWARES ******************
+
+passport.use("google", googleStrategy)
+server.use(cors());
+server.use(express.json());
+server.use(passport.initialize())
+
 // ************************ ROUTES *********************
 
 server.use("/users", userRouter);
 server.use("/items", itemRouter);
 server.use("/collections", collectionRouter);
-
-// *********************** MIDDLEWARES ******************
-
-passport.use("google", googleStrategy)
-server.use(passport.initialize())
 
 // *********************** DB CONNECTION ****************
 mongoose.connect(MONGO_URL);
