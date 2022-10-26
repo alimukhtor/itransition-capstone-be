@@ -4,8 +4,14 @@ import mongoose from "mongoose";
 import passport from 'passport'
 import listEndpoints from "express-list-endpoints";
 import {googleStrategy} from './middleware/oauth.js'
+
+const corsOptions ={
+  origin:'*', 
+  credentials:true,            //access-control-allow-credentials:true
+  optionSuccessStatus:200,
+}
 const server = express();
-server.use(cors());
+server.use(cors(corsOptions));
 server.use(express.json());
 // *********************** ENV IMPORTS ******************
 
