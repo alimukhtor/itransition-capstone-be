@@ -5,7 +5,8 @@ import passport from 'passport'
 import listEndpoints from "express-list-endpoints";
 import {googleStrategy} from './middleware/oauth.js'
 const server = express();
-
+server.use(cors());
+server.use(express.json());
 // *********************** ENV IMPORTS ******************
 
 const { MONGO_URL } = process.env;
@@ -24,8 +25,7 @@ server.use("/items", itemRouter);
 server.use("/collections", collectionRouter);
 
 // *********************** MIDDLEWARES ******************
-server.use(cors());
-server.use(express.json());
+
 passport.use("google", googleStrategy)
 server.use(passport.initialize())
 
