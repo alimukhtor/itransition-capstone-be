@@ -16,7 +16,15 @@ const itemSchema = new Schema(
     customFields: [{ type: Object }],
     tags: [{ type: Object }],
     owner: { type: Schema.Types.ObjectId, ref: "User" },
-    likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    likes: {
+      default: [],
+      type: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+      ],
+    },
     collections: { type: Schema.Types.ObjectId, ref: "Collection" },
   },
   { timestamps: true }

@@ -111,7 +111,7 @@ itemRouter.get("/:itemId", async (req, res, next) => {
       return next(createHttpError(400, "Invalid ID"));
     const items = await ItemModal.findById(req.params.itemId)
       .populate("owner")
-      .populate({path:"collections", select:"name"});
+      .populate({ path: "collections", select: "name" });
     res.status(200).send(items);
   } catch (error) {
     next(error);
@@ -262,56 +262,27 @@ itemRouter.delete(
   }
 );
 
-// adds like by users and admins
-itemRouter.post(
-  "/:itemId/add-like",
-  JWTAuthMiddleware,
-  adminAndUserOnly,
-  async (req, res, next) => {
-    try {
-      const item = await ItemModal.findByIdAndUpdate(
-        req.params.itemId,
-        { $push: { likes: req.user._id } },
-        { new: true }
-      );
-      if (!item)
-        return next(
-          createHttpError(
-            404,
-            `The id ${req.params.itemId} does not match any items`
-          )
-        );
-      res.send(item);
-    } catch (error) {
-      next(error);
+// adds and removes like by users and admins
+itemRouter.put("/:itemId/like", async (req, res, next) => {
+  try {
+    const { itemId } = req.body;
+    const isLiked = await ItemModal.findOne({
+      _id: req.params.id,
+      likes: itemId,
+    });
+    if (isLiked) {
+      await ItemModal.findByIdAndUpdate(req.params.itemId, {
+        $pull: { likes: itemId },
+      });
+      res.send("UNLIKED");
+    } else {
+      await ItemModal.findByIdAndUpdate(req.params.itemId, {
+        $push: { likes: itemId },
+      });
+      res.send("LIKED");
     }
+  } catch (error) {
+    res.send(500).send({ message: error.message });
   }
-);
-
-//removes like by users and admins
-itemRouter.post(
-  "/:itemId/remove-like",
-  JWTAuthMiddleware,
-  adminAndUserOnly,
-  async (req, res, next) => {
-    try {
-      const item = await ItemModal.findByIdAndUpdate(
-        req.params.itemId,
-        { $pull: { likes: req.user._id } },
-        { new: true }
-      );
-      if (!item)
-        return next(
-          createHttpError(
-            404,
-            `The id ${req.params.itemId} does not match any items`
-          )
-        );
-      res.send(item);
-    } catch (error) {
-      next(error);
-    }
-  }
-);
-
+});
 export default itemRouter;

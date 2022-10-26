@@ -5,6 +5,7 @@ import { JWTAuthenticate } from "../../middleware/tools.js";
 import { JWTAuthMiddleware } from "../../middleware/authentication.js";
 import CollectionModal from "../collections/schema.js";
 import { adminOnly } from "../../middleware/authorization.js";
+import passport from "passport";
 const userRouter = express.Router();
 
 //get all users
@@ -109,6 +110,30 @@ userRouter.post("/login", async (req, res, next) => {
     next(error);
   }
 });
+
+userRouter.get(
+  "/googleLogin",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+userRouter.get(
+  "/googleRedirect",
+  passport.authenticate("google", {
+    failureRedirect: `${process.env.GOOGLE_FE_URL}`,
+  }),
+  async (req, res, next) => {
+    try {
+      console.log("Token:", process.env.GOOGLE_FE_URL);
+      console.log("Hi");
+      console.log("Token:", req.user.token);
+      res.redirect(
+        `${process.env.GOOGLE_FE_URL}?accessToken=${req.user.token}`
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 // deletes user only by admins
 userRouter.delete(
