@@ -21,6 +21,8 @@ const corsOptions = {
   },
 };
 
+console.log(whiteList);
+
 // *********************** ENV IMPORTS ******************
 
 const { MONGO_URL } = process.env;
