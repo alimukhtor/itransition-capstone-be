@@ -8,6 +8,27 @@ import { adminOnly } from "../../middleware/authorization.js";
 import passport from "passport";
 const userRouter = express.Router();
 
+
+userRouter.get(
+  "/googleLogin",
+  passport.authenticate("google", { scope: ["profile", "email"]})
+);
+
+userRouter.get(
+  "/googleRedirect",
+  passport.authenticate("google", {
+    failureRedirect: `${process.env.GOOGLE_FE_URL}`, session: false 
+  }),
+  async (req, res, next) => {
+    try {
+      res.redirect(
+        `${process.env.GOOGLE_FE_URL}/adminPage?accessToken=${req.user.token}`
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 //get all users
 userRouter.get(
   "/allUsers",
@@ -111,29 +132,7 @@ userRouter.post("/login", async (req, res, next) => {
   }
 });
 
-userRouter.get(
-  "/googleLogin",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
 
-userRouter.get(
-  "/googleRedirect",
-  passport.authenticate("google", {
-    failureRedirect: `${process.env.GOOGLE_FE_URL}`,
-  }),
-  async (req, res, next) => {
-    try {
-      console.log("Token:", process.env.GOOGLE_FE_URL);
-      console.log("Hi");
-      console.log("Token:", req.user.token);
-      res.redirect(
-        `${process.env.GOOGLE_FE_URL}?accessToken=${req.user.token}`
-      );
-    } catch (error) {
-      next(error);
-    }
-  }
-);
 
 // deletes user only by admins
 userRouter.delete(

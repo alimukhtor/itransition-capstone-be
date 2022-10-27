@@ -1,11 +1,25 @@
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
-import passport from 'passport'
+import passport from "passport";
 import listEndpoints from "express-list-endpoints";
-import {googleStrategy} from './middleware/oauth.js'
+import { googleStrategy } from "./middleware/oauth.js";
 
 const server = express();
+const whiteList = [
+  "http://localhost:3000",
+  "https://personal-collection.netlify.app/",
+];
+const corsOptions = {
+  origin: function (origin, next) {
+    console.log(origin);
+    if (!origin || whiteList.indexOf(origin) !== -1) {
+      next(null, true);
+    } else {
+      next(new Error("Not allowed by CORS"));
+    }
+  },
+};
 
 // *********************** ENV IMPORTS ******************
 
@@ -20,10 +34,10 @@ import collectionRouter from "./db/collections/routes.js";
 
 // *********************** MIDDLEWARES ******************
 
-passport.use("google", googleStrategy)
-server.use(cors());
+passport.use("google", googleStrategy);
+server.use(cors(corsOptions));
 server.use(express.json());
-server.use(passport.initialize())
+server.use(passport.initialize());
 
 // ************************ ROUTES *********************
 
