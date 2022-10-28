@@ -14,7 +14,7 @@ const itemSchema = new Schema(
       },
     ],
     customFields: [{ type: Object }],
-    tags: [{ type: Object }],
+    tags: { type: Array },
     owner: { type: Schema.Types.ObjectId, ref: "User" },
     likes: {
       default: [],

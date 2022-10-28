@@ -13,6 +13,4 @@ const collectionSchema = new Schema(
   },
   { timestamps: true }
 );
-
-collectionSchema.index({ "$**": "text" });
 export default model("Collection", collectionSchema);

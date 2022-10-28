@@ -56,53 +56,35 @@ itemRouter.post(
   }
 );
 
-// all items for admin
-itemRouter.get(
-  "/allitems",
-  JWTAuthMiddleware,
-  adminOnly,
-  async (req, res, next) => {
-    try {
-      const getAllitems = await ItemModal.find({})
-        .populate({ path: "owner", select: "username" })
-        .populate({ path: "collections", select: "name" });
-      res.status(200).send(getAllitems);
-    } catch (error) {
-      next(error);
-    }
-  }
-);
-
-// full text search engine for items for everyone
+// full text search engine for items
 itemRouter.get("/search", async (req, res, next) => {
   try {
     const { title } = req.query;
-    const searchitem = await ItemModal.find({
+    const searchedItem = await ItemModal.find({
       $text: { $search: title },
     });
-    res.status(200).send(searchitem);
+    if (searchedItem) {
+      res.status(200).send(searchedItem);
+    } else {
+      res.status(404).send({ msg: "Not found!" });
+    }
   } catch (error) {
     next(error);
   }
 });
 
 // get item for authorized users
-itemRouter.get(
-  "/",
-  JWTAuthMiddleware,
-  adminAndUserOnly,
-  async (req, res, next) => {
-    try {
-      const items = await ItemModal.find({ owner: req.user._id }).populate({
-        path: "collections",
-        select: ["name", "owner"],
-      });
-      res.send(items);
-    } catch (error) {
-      next(error);
-    }
+itemRouter.get("/", async (req, res, next) => {
+  try {
+    const items = await ItemModal.find({}).populate({
+      path: "collections",
+      select: ["name", "owner"],
+    });
+    res.send(items);
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 // get single item by users and admins
 itemRouter.get("/:itemId", async (req, res, next) => {

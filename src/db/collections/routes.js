@@ -25,18 +25,6 @@ const storage = new CloudinaryStorage({
 });
 const parser = multer({ storage: storage });
 
-collectionRoute.get("/search", async (req, res, next) => {
-  try {
-    const { title } = req.query;
-    const searchitem = await CollectionModal.find({
-      $text: { $search: title },
-    });
-    res.status(200).send(searchitem);
-  } catch (error) {
-    next(error);
-  }
-});
-
 // get all collections by only admins
 collectionRoute.get("/allCollections", async (req, res, next) => {
   try {
