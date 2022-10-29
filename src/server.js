@@ -3,7 +3,7 @@ import cors from "cors";
 import mongoose from "mongoose";
 import passport from "passport";
 import listEndpoints from "express-list-endpoints";
-import { googleStrategy } from "./middleware/oauth.js";
+import { googleStrategy, facebookStrategy, gitHubStrategy } from "./middleware/oauth.js";
 
 const server = express();
 const whiteList = [
@@ -12,7 +12,6 @@ const whiteList = [
 ];
 const corsOptions = {
   origin: function (origin, next) {
-    console.log(origin);
     if (!origin || whiteList.indexOf(origin) !== -1) {
       next(null, true);
     } else {
@@ -20,8 +19,6 @@ const corsOptions = {
     }
   },
 };
-
-console.log(whiteList);
 
 // *********************** ENV IMPORTS ******************
 
@@ -37,6 +34,8 @@ import collectionRouter from "./db/collections/routes.js";
 // *********************** MIDDLEWARES ******************
 
 passport.use("google", googleStrategy);
+passport.use("facebook", facebookStrategy)
+passport.use("github", gitHubStrategy)
 server.use(cors(corsOptions));
 server.use(express.json());
 server.use(passport.initialize());

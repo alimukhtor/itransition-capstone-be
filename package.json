@@ -32,6 +32,8 @@
     "multer": "^1.4.5-lts.1",
     "multer-storage-cloudinary": "^4.0.0",
     "passport": "^0.6.0",
+    "passport-facebook": "^3.0.0",
+    "passport-github": "^1.1.0",
     "passport-google-oauth20": "^2.0.0",
     "query-to-mongo": "^0.10.2",
     "uuidv4": "^6.2.13",

@@ -8,27 +8,69 @@ import { adminOnly } from "../../middleware/authorization.js";
 import passport from "passport";
 const userRouter = express.Router();
 
+// authenticating by socila networks
 
+// by google
 userRouter.get(
   "/googleLogin",
-  passport.authenticate("google", { scope: ["profile", "email"]})
+  passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
 userRouter.get(
   "/googleRedirect",
   passport.authenticate("google", {
-    failureRedirect: `${process.env.GOOGLE_FE_URL}`, session: false 
+    failureRedirect: `${process.env.GOOGLE_FE_URL}`,
+    session: false,
   }),
   async (req, res, next) => {
     try {
       res.redirect(
-        `${process.env.GOOGLE_FE_URL}/adminPage?accessToken=${req.user.token}`
+        `${process.env.GOOGLE_FE_URL}?accessToken=${req.user.token}`
       );
     } catch (error) {
       next(error);
     }
   }
 );
+
+// by facebook
+userRouter.get("/facebookLogin", passport.authenticate("facebook"));
+
+userRouter.get(
+  "/facebookRedirect",
+  passport.authenticate("facebook", {
+    failureRedirect: "/login",
+    session: false,
+  }),
+  async (req, res, next) => {
+    try {
+      res.redirect(
+        `${process.env.GOOGLE_FE_URL}?accessToken=${req.user.token}`
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+userRouter.get("/githubLogin", passport.authenticate("github", { scope: [] }));
+userRouter.get(
+  "/githubRedirect",
+  passport.authenticate("github", {
+    failureRedirect: "/login",
+    session: false,
+  }),
+  async (req, res, next) => {
+    try {
+      res.redirect(
+        `${process.env.GOOGLE_FE_URL}?accessToken=${req.user.token}`
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 //get all users
 userRouter.get(
   "/allUsers",
@@ -132,8 +174,6 @@ userRouter.post("/login", async (req, res, next) => {
   }
 });
 
-
-
 // deletes user only by admins
 userRouter.delete(
   "/deleteUsers",
@@ -142,8 +182,6 @@ userRouter.delete(
   async (req, res, next) => {
     try {
       const selectedUsers = req.body;
-      console.log("ROLE", req.user.role);
-      console.log("selectedUsers id", selectedUsers);
       UsersModal.deleteMany(
         {
           _id: {

@@ -35,7 +35,6 @@ itemRouter.post(
   parser.single("image"),
   async (req, res, next) => {
     try {
-      console.log("ITEM id", req.params.itemId);
       if (req.params.itemId.length !== 24)
         return next(createHttpError(400, "Invalid ID"));
       const item = await ItemModal.findById(req.params.itemId);

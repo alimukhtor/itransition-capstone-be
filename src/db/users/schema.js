@@ -9,9 +9,9 @@ const userSchema = new Schema(
     role: { type: String, enum: ["user", "admin"], default: "user" },
     status: { type: String, enum: ["active", "blocked"], default: "active" },
     collections: [{ type: Schema.Types.ObjectId, ref: "Collection" }],
-    googleId:{type:String},
-    githubId:{type:String},
-    facebookId:{type:String}
+    googleId: { type: String },
+    githubId: { type: String },
+    facebookId: { type: String },
   },
   { timestamps: true }
 );
