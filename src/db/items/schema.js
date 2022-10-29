@@ -15,7 +15,6 @@ const itemSchema = new Schema(
     tags: { type: Array },
     owner: { type: Schema.Types.ObjectId, ref: "User" },
     likes: {
-      default: [],
       type: [
         {
           type: mongoose.Schema.Types.ObjectId,
