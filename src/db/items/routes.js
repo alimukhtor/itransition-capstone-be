@@ -4,7 +4,6 @@ import { JWTAuthMiddleware } from "../../middleware/authentication.js";
 import { adminAndUserOnly, adminOnly } from "../../middleware/authorization.js";
 import ItemModal from "./schema.js";
 import CollectionModal from "../collections/schema.js";
-import { v4 as uuidv4 } from "uuid";
 import { v2 as Cloudinary } from "cloudinary";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";

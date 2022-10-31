@@ -25,10 +25,10 @@ export const googleStrategy = new GoogleStrategy(
           email: profile.emails[0].value,
           googleId: profile.id,
           role: "user",
-          statsu: "active",
+          status: "active",
         });
-        // const savedUser = await newUser.save()
-        const token = await JWTAuthenticate(newUser);
+        const savedUser = await newUser.save()
+        const token = await JWTAuthenticate(savedUser);
         passportNext(null, { token });
       }
     } catch (error) {
@@ -63,8 +63,8 @@ export const facebookStrategy = new FacebookStrategy(
           role: "user",
           status: "active",
         });
-        // const savedUser = await newUser.save()
-        const token = await JWTAuthenticate(newUser);
+        const savedUser = await newUser.save()
+        const token = await JWTAuthenticate(savedUser);
         console.log(token);
         passportNext(null, { token });
       }
@@ -99,8 +99,8 @@ export const gitHubStrategy = new GitHubStrategy(
           status: "active",
         });
 
-        // const savedUser = await newUser.save()
-        const token = await JWTAuthenticate(newUser);
+        const savedUser = await newUser.save()
+        const token = await JWTAuthenticate(savedUser);
         passportNext(null, { token });
       }
     } catch (error) {

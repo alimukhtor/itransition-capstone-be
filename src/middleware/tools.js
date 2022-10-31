@@ -6,7 +6,7 @@ export const JWTAuthenticate = async (user) => {
       _id: user._id,
       role: user.role,
     });
-    return accessToken;
+    return {accessToken, user};
   } catch (error) {
     console.log(error);
   }

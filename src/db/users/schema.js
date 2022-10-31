@@ -19,9 +19,11 @@ const userSchema = new Schema(
 userSchema.pre("save", async function (next) {
   const newUser = this;
   const plainPassword = newUser.password;
+  if(newUser.password === undefined){
+    next();
+  }
   const hashPW = await bcrypt.hash(plainPassword, 11);
   newUser.password = hashPW;
-  next();
 });
 
 userSchema.methods.toJSON = function () {

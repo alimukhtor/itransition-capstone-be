@@ -25,7 +25,7 @@ userRouter.get(
   async (req, res, next) => {
     try {
       res.redirect(
-        `${process.env.GOOGLE_FE_URL}?accessToken=${req.user.token}`
+        `${process.env.GOOGLE_FE_URL}/adminPage/?accessToken=${req.user.token.accessToken}`
       );
     } catch (error) {
       next(error);
@@ -45,7 +45,7 @@ userRouter.get(
   async (req, res, next) => {
     try {
       res.redirect(
-        `${process.env.GOOGLE_FE_URL}?accessToken=${req.user.token}`
+        `${process.env.GOOGLE_FE_URL}/adminPage?accessToken=${req.user.token.accessToken}`
       );
     } catch (error) {
       next(error);
@@ -63,7 +63,7 @@ userRouter.get(
   async (req, res, next) => {
     try {
       res.redirect(
-        `${process.env.GOOGLE_FE_URL}?accessToken=${req.user.token}`
+        `${process.env.GOOGLE_FE_URL}/adminPage?accessToken=${req.user.token.accessToken}`
       );
     } catch (error) {
       next(error);
