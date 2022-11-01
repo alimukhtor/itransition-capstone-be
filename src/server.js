@@ -36,7 +36,7 @@ import collectionRouter from "./db/collections/routes.js";
 passport.use("google", googleStrategy);
 passport.use("facebook", facebookStrategy)
 passport.use("github", gitHubStrategy)
-server.use(cors(corsOptions));
+server.use(cors());
 server.use(express.json());
 server.use(passport.initialize());
 
