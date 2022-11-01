@@ -4,7 +4,7 @@ import createHttpError from "http-errors";
 import { JWTAuthenticate } from "../../middleware/tools.js";
 import { JWTAuthMiddleware } from "../../middleware/authentication.js";
 import CollectionModal from "../collections/schema.js";
-import { adminOnly } from "../../middleware/authorization.js";
+import { adminAndUserOnly, adminOnly } from "../../middleware/authorization.js";
 import passport from "passport";
 const userRouter = express.Router();
 
@@ -261,30 +261,30 @@ userRouter.put(
 );
 
 // update user
-// userRouter.put(
-//   "/:userId",
-//   JWTAuthMiddleware,
-//   adminAndUserOnly,
-//   async (req, res, next) => {
-//     try {
-//       if (req.params.userId.length !== 24)
-//         return next(createHttpError(400, "Invalid ID"));
-//       const updatedUser = await UsersModal.findByIdAndUpdate(
-//         req.params.userId,
-//         req.body,
-//         { new: true }
-//       );
-//       if (!updatedUser)
-//         return next(
-//           createHttpError(
-//             400,
-//             `The id ${req.params.userId} does not match any users`
-//           )
-//         );
-//       res.send(updatedUser);
-//     } catch (error) {
-//       next(error);
-//     }
-//   }
-// );
+userRouter.put(
+  "/:userId",
+  JWTAuthMiddleware,
+  adminAndUserOnly,
+  async (req, res, next) => {
+    try {
+      if (req.params.userId.length !== 24)
+        return next(createHttpError(400, "Invalid ID"));
+      const updatedUser = await UsersModal.findByIdAndUpdate(
+        req.params.userId,
+        req.body,
+        { new: true }
+      );
+      if (!updatedUser)
+        return next(
+          createHttpError(
+            400,
+            `The id ${req.params.userId} does not match any users`
+          )
+        );
+      res.send(updatedUser);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 export default userRouter;
